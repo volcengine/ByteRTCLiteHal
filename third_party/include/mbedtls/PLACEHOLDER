@@ -1,0 +1,1 @@
+ByteRTCHal依赖mbedtls，如果使用方式一获取libByteRTCHal.a，需要在这个目录下放置mbedtls头文件确保编译成功。

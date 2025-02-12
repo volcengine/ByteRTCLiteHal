@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2024 The VolcEngineRTCLite project authors. All Rights Reserved.
- * @brief VolcEngineRTCLite Interface Lite
+ * Copyright (2025) Beijing Volcano Engine Technology Ltd.
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef __HAL_VOLC_TIME_H__

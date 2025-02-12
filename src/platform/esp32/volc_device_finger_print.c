@@ -1,3 +1,8 @@
+/*
+ * Copyright (2025) Beijing Volcano Engine Technology Ltd.
+ * SPDX-License-Identifier: MIT
+ */
+
 #include "volc_device_finger_print.h"
 
 #include <esp_netif.h>

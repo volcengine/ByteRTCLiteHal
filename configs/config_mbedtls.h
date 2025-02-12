@@ -1,3 +1,8 @@
+/*
+ * Copyright (2025) Beijing Volcano Engine Technology Ltd.
+ * SPDX-License-Identifier: MIT
+ */
+
 #ifndef __RTC_CLIENT_CRYPTO_CONFIG__
 #define __RTC_CLIENT_CRYPTO_CONFIG__
 
