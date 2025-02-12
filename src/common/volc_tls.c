@@ -31,7 +31,7 @@ uint32_t volc_tls_create(volc_tls_t* tls)
     mbedtls_x509_crt_init(&ctx->cacert);
     mbedtls_ctr_drbg_init(&ctx->ctr_drbg);
     mbedtls_entropy_init(&ctx->entropy);
-    VOLC_CHK(mbedtls_ctr_drbg_seed(&ctx->ctr_drbg, mbedtls_entropy_func, &ctx->entropy, NULL, 0) == 0, VOLC_STATUS_CREATE_SSL_FAILED);
+    VOLC_CHK(mbedtls_ctr_drbg_seed(&ctx->ctr_drbg, mbedtls_entropy_func, &ctx->entropy, NULL, 0) == 0, VOLC_STATUS_FAILURE);
     return ret;
 err_out_label:
     if (ctx) {

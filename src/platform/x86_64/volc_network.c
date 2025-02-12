@@ -92,7 +92,7 @@ uint32_t volc_get_ip_with_host_name(const char* hostname, volc_ip_addr_t* dest_i
     err_code = getaddrinfo(hostname, NULL, NULL, &res);
     if (err_code != 0) {
         err_str = err_code == EAI_SYSTEM ? strerror(errno) : (char *) gai_strerror(err_code);
-        ret = VOLC_STATUS_RESOLVE_HOSTNAME_FAILED;
+        ret = VOLC_STATUS_FAILURE;
         goto err_out_label;
     }
 
@@ -112,7 +112,7 @@ uint32_t volc_get_ip_with_host_name(const char* hostname, volc_ip_addr_t* dest_i
 
     freeaddrinfo(res);
     if (!resolved) {
-        ret = VOLC_STATUS_HOSTNAME_NOT_FOUND;
+        ret = VOLC_STATUS_FAILURE;
     }
 err_out_label:
     return ret;
