@@ -49,3 +49,5 @@ hal
     * make
 * 连续火山商务或研发获取相应平台libVolcEngineRTC.a
 * 编译完整项目
+
+# 4. License: MIT

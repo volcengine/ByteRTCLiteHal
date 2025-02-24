@@ -1,5 +1,5 @@
 /*
- * Copyright (2025) Beijing Volcano Engine Technology Ltd.
+ * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
  * SPDX-License-Identifier: MIT
  */
 
