@@ -1,12 +1,14 @@
 #include "volc_device_finger_print.h"
 
-#include <net/if.h>
-#include <sys/ioctl.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <net/if_dl.h>
+#include <ifaddrs.h>
+#include <net/if.h>
 
 #include "volc_type.h"
 
@@ -31,30 +33,27 @@ err_out_label:
 
 uint32_t volc_get_mac_address(volc_string_t* mac_addr) {
     uint32_t ret = VOLC_STATUS_SUCCESS;
-    volc_string_t interface;
-    int sock = 0;
+    struct ifaddrs* ifa = NULL;
+    struct ifaddrs* ifa_temp = NULL;
     VOLC_CHK(NULL != mac_addr, VOLC_STATUS_INVALID_ARG);
 
-    volc_string_init(&interface);
-    _volc_get_default_route_interface(&interface);
-    VOLC_CHK(volc_string_get_length(&interface) > 0, VOLC_STATUS_FAILURE);
-    sock = socket(AF_INET, SOCK_DGRAM, 0);
-    VOLC_CHK(sock > 0, VOLC_STATUS_FAILURE);
-    struct ifreq ifr;
-    strcpy(ifr.ifr_name, volc_string_get(&interface));
-
-    int res = ioctl(sock, SIOCGIFHWADDR, &ifr);
-    VOLC_CHK(res >= 0, VOLC_STATUS_OPEN_FILE_FAILED);
-
-    unsigned char mac[6];
-    memcpy(mac, ifr.ifr_hwaddr.sa_data, 6);
-    volc_string_snprintf(mac_addr,100,"%02X%02X%02X%02X%02X%02X",mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
-err_out_label:
-    volc_string_deinit(&interface);
-    if(sock > 0) {
-        close(sock);
+    getifaddrs(&ifa);
+    for (ifa_temp = ifa; ifa_temp != NULL; ifa_temp = ifa_temp->ifa_next) {
+        if (ifa_temp->ifa_addr != NULL && ifa_temp->ifa_addr->sa_family == AF_LINK) {
+            struct sockaddr_dl* sdl = (struct sockaddr_dl*)ifa_temp->ifa_addr;
+            if (sdl->sdl_alen == 6) {
+                unsigned char* mac = (unsigned char*)LLADDR(sdl);
+                if (strncmp(ifa_temp->ifa_name, "lo", 2) != 0) {
+                    printf("Interface: %-8s MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+                           ifa->ifa_name,
+                           mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                    break;
+                }
+            }
+        }
     }
+    freeifaddrs(ifa);
+err_out_label:  
     return ret;
 }
 

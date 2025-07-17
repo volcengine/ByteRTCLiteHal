@@ -1,8 +1,3 @@
-/*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
- */
-
 #include "volc_time.h"
 
 #include <stdio.h>
@@ -12,10 +7,16 @@
 #include "volc_errno.h"
 #include "volc_type.h"
 
-uint64_t volc_get_time(void) {
+uint64_t volc_get_time_ms(void){
     struct timespec now_time;
     clock_gettime(CLOCK_REALTIME, &now_time);
-    return (uint64_t)now_time.tv_sec * VOLC_HUNDREDS_OF_NANOS_IN_A_SECOND + (uint64_t)now_time.tv_nsec / VOLC_DEFAULT_TIME_UNIT_IN_NANOS;
+    return (uint64_t)now_time.tv_sec * VOLC_MILLISECONDS_IN_A_SECOND + (uint64_t)now_time.tv_nsec / VOLC_NANOS_IN_A_MILLISECONDS_SECOND;
+}
+
+uint64_t volc_get_montionic_time_ms(void){
+    struct timespec now_time;
+    clock_gettime(CLOCK_MONOTONIC, &now_time);
+    return (uint64_t)now_time.tv_sec * VOLC_MILLISECONDS_IN_A_SECOND + (uint64_t)now_time.tv_nsec / VOLC_NANOS_IN_A_MILLISECONDS_SECOND; 
 }
 
 uint32_t volc_timestamp_format_with_ms_and_timezone(char* p_dest_buffer, uint32_t dest_buffer_len, uint64_t timestamp_milliseconds) {
@@ -66,7 +67,7 @@ uint32_t volc_generate_timestamp_str(uint64_t timestamp, char* format_str, char*
 
 uint32_t volc_get_time_str(char* time_str, uint32_t maxsize) {
     uint32_t ret = VOLC_STATUS_SUCCESS;
-    time_t timestamp_seconds = volc_get_time()/ VOLC_HUNDREDS_OF_NANOS_IN_A_SECOND;
+    time_t timestamp_seconds = volc_get_time_ms();
     VOLC_CHK(time_str != NULL, VOLC_STATUS_NULL_ARG);
 
     strftime(time_str, maxsize,"%Y%m%d%H%M%S",localtime(&timestamp_seconds));

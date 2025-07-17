@@ -1,8 +1,3 @@
-/*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
- */
-
 #include "volc_network.h"
 
 #include "sdkconfig.h"
@@ -66,7 +61,7 @@ uint32_t volc_get_ip_with_host_name(const char* hostname, volc_ip_addr_t* dest_i
     err_code = getaddrinfo(hostname, NULL, NULL, &res);
     if (err_code != 0) {
         err_str = err_code == EAI_SYSTEM ? strerror(errno) : (char *) gai_strerror(err_code);
-        ret = VOLC_STATUS_FAILURE;
+        ret = VOLC_STATUS_RESOLVE_HOSTNAME_FAILED;
         goto err_out_label;
     }
 
@@ -86,8 +81,22 @@ uint32_t volc_get_ip_with_host_name(const char* hostname, volc_ip_addr_t* dest_i
 
     freeaddrinfo(res);
     if (!resolved) {
-        ret = VOLC_STATUS_FAILURE;
+        ret = VOLC_STATUS_HOSTNAME_NOT_FOUND;
     }
 err_out_label:
     return ret;
+}
+int volc_inet_pton (int __af, const char *__restrict __cp,void *__restrict __buf) {
+    int af = AF_INET;
+    if(__af == VOLC_IP_FAMILY_TYPE_IPV6 ) {
+        af = AF_INET6;
+    }
+    return inet_pton(af,__cp,__buf);
+};
+
+ uint16_t volc_htons(uint16_t hostshort){
+    return htons(hostshort);
+ };
+uint16_t volc_ntohs(uint16_t netshort){
+    return ntohs(netshort);
 }

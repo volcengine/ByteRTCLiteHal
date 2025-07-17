@@ -1,8 +1,3 @@
-/*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
- */
-
 #include "volc_atomic.h"
 
 void volc_atomic_store(volatile size_t* p_atomic, size_t val) {

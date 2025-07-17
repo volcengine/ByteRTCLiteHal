@@ -1,22 +1,21 @@
 #include "volc_memory.h"
 
 #include <stdlib.h>
-#include <esp_heap_caps.h>
 
 void* volc_malloc(size_t size) {
-    return heap_caps_malloc(size,MALLOC_CAP_SPIRAM | MALLOC_CAP_DEFAULT);
+    return malloc(size);
 }
 
 void* volc_calloc(size_t num, size_t size) {
-    return heap_caps_calloc(num,size,MALLOC_CAP_SPIRAM | MALLOC_CAP_DEFAULT);
+    return calloc(num, size);
 }
 
 void* volc_realloc(void* ptr, size_t new_size) {
-    return heap_caps_realloc(ptr,new_size,MALLOC_CAP_SPIRAM | MALLOC_CAP_DEFAULT);
+    return realloc(ptr, new_size);
 }
 
 void volc_free(void* ptr) {
-    heap_caps_free(ptr);
+    free(ptr);
 }
 
 bool volc_memory_check(void* ptr, uint8_t val, size_t size) {

@@ -1,6 +1,6 @@
 /*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
+ * Copyright (c) 2024 The VolcEngineRTCLite project authors. All Rights Reserved.
+ * @brief VolcEngineRTCLite Interface Lite
  */
 
 #ifndef __HAL_VOLC_THREAD_H__
@@ -37,7 +37,7 @@ extern "C" {
  * @type keytype
  * @brief 线程id
  */
-typedef uint64_t volc_tid_t;
+typedef void* volc_tid_t;
 
 /**
  * @brief 定义线程本地存储的类型，使用 void* 指针表示。
@@ -66,6 +66,11 @@ typedef struct {
      * @brief 线程绑定的 CPU 核心。
      */
     int  bind_cpu;
+    
+    /**
+     * @brief 将任务栈分配至片外内存。
+     */
+    int stack_in_ext;
 } volc_thread_param_t;
 
 /**
@@ -74,16 +79,6 @@ typedef struct {
  * @return 当前线程的 ID。
  */
 __byte_rtc_api__ volc_tid_t volc_thread_get_id(void);
-
-/**
- * @brief 获取指定线程的名称。
- * 
- * @param thread 要获取名称的线程的 ID。
- * @param name 用于存储线程名称的字符数组。
- * @param len 字符数组的长度。
- * @return 操作结果的状态码。
- */
-__byte_rtc_api__ uint32_t volc_thread_get_name(volc_tid_t thread, char* name, uint32_t len);
 
 /**
  * @brief 设置当前线程的名称。
@@ -112,14 +107,6 @@ __byte_rtc_api__ uint32_t volc_thread_create(volc_tid_t* thread, const volc_thre
  * @return 操作结果的状态码。
  */
 __byte_rtc_api__ uint32_t volc_thread_join(volc_tid_t thread, void* ret);
-
-/**
- * @brief 取消指定线程的执行。
- * 
- * @param thread 要取消的线程的 ID。
- * @return 操作结果的状态码。
- */
-__byte_rtc_api__ uint32_t volc_thread_cancel(volc_tid_t thread);
 
 /**
  * @brief 将指定线程设置为分离状态。

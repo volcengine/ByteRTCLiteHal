@@ -1,8 +1,3 @@
-/*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
- */
-
 #include "volc_mutex.h"
 
 #include <pthread.h>

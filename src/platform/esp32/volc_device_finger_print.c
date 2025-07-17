@@ -1,8 +1,3 @@
-/*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
- */
-
 #include "volc_device_finger_print.h"
 
 #include <esp_netif.h>
@@ -17,7 +12,7 @@ uint32_t volc_get_mac_address(volc_string_t* mac_addr) {
     while ((netif = esp_netif_next_unsafe(netif)) != NULL) {
         uint8_t hwaddr[6] = {0};
         esp_netif_get_mac(netif, hwaddr);
-        volc_string_snprintf(mac_addr,32,"%2X%2X%2X%2X%2X%2X",hwaddr[0], hwaddr[1], hwaddr[2], hwaddr[3], hwaddr[4], hwaddr[5]);
+        volc_string_snprintf(mac_addr,32,"%02X%02X%02X%02X%02X%02X",hwaddr[0], hwaddr[1], hwaddr[2], hwaddr[3], hwaddr[4], hwaddr[5]);
     }
 
 err_out_label:

@@ -1,8 +1,3 @@
-/*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
- */
-
 #include "volc_memory.h"
 
 #include <stdlib.h>
@@ -10,10 +5,6 @@
 
 void* volc_malloc(size_t size) {
     return malloc(size);
-}
-
-void* volc_align_alloc(size_t size, size_t alignment) {
-    return memalign(alignment, size);
 }
 
 void* volc_calloc(size_t num, size_t size) {

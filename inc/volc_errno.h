@@ -1,6 +1,6 @@
 /*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
+ * Copyright (c) 2024 The VolcEngineRTCLite project authors. All Rights Reserved.
+ * @brief VolcEngineRTCLite Interface Lite
  */
 
 #ifndef __HAL_VOLC_ERRNO_H__
@@ -23,6 +23,13 @@ extern "C" {
 #define VOLC_SUCCESS    0
 #define VOLC_FAILED     -1
 
+/**
+ * @brief 获取当前fd的errno
+ * 
+ * @param fd 文件描述符
+ * @return 返回errno
+ */
+__byte_rtc_api__ int volc_errno(int fd);
 
 #ifdef __cplusplus
 }

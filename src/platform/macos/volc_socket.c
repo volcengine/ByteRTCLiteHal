@@ -91,6 +91,7 @@ int volc_connect (int __fd, volc_ip_addr_t* __addr) {
         char ip[INET_ADDRSTRLEN] = {0};
         inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));
         r = connect(__fd, (struct sockaddr*)&addr, (socklen_t)sizeof(addr));
+        printf("++++++++++++++++++++volc_connect %s af %d %d %d fd %d\n", ip, addr.sin_family,ntohs(addr.sin_port),addr.sin_port,__fd);
     } while (r == -1 && errno == EINTR);
 
     if(r == -1 && errno != EINPROGRESS)  {

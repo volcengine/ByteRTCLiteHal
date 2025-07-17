@@ -1,8 +1,7 @@
 #include "volc_thread.h"
 
 #include <unistd.h>
-#include <freertos/FreeRTOS.h>
-
+#include <pthread.h>
 #include "volc_errno.h"
 #include "volc_memory.h"
 #include "volc_time.h"
@@ -19,56 +18,36 @@ volc_tid_t volc_thread_get_id(void) {
 }
 
 uint32_t volc_thread_set_name(const char* name) {
-    (void)name;
-    return VOLC_SUCCESS;
+    uint32_t ret = 0;
+    if (NULL == name) {
+        return VOLC_FAILED;
+    }
+    ret = pthread_setname_np(name);
+    return (0 == ret) ? VOLC_SUCCESS : VOLC_FAILED;
 }
 
 uint32_t volc_thread_create(volc_tid_t* thread, const volc_thread_param_t* param, void* (*start_routine)(void *), void* args) {
     int ret = 0;
-    int stack_size = 0;
-    int priority = 0;
-    BaseType_t core_id = 0;
-    TaskHandle_t* handle = NULL;
+    pthread_t* pthread = NULL;
     if (NULL == thread || NULL == start_routine) {
         return VOLC_FAILED;
     }
-
-    if (NULL != param) {
-        stack_size = param->stack_size <= 0 ? 8192 : param->stack_size;
-        priority = param->priority <= 0 ? 3 : param->priority;
-        core_id = 1;
-    } else {
-        stack_size = 8192;
-        priority = 3;
-        core_id = tskNO_AFFINITY;
+    ret = pthread_create(&pthread, NULL, start_routine, args);
+    if (0 != ret) {
+        goto err_out_label;
     }
-    handle = (TaskHandle_t *)volc_calloc(1, sizeof(TaskHandle_t));
-    if (NULL == handle) {
-        return VOLC_FAILED;
-    }
-    *thread = (volc_tid_t *)handle;
-
-    if(param->stack_in_ext) {
-        ret = xTaskCreatePinnedToCoreWithCaps(start_routine, param->name, stack_size, args, priority, handle, core_id, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-    } else {
-        ret = xTaskCreatePinnedToCore(start_routine, param->name, stack_size, args, priority, handle, core_id);
-    }
-    if (pdPASS != ret) {
-        return VOLC_FAILED;
-    }
+    *thread = (volc_tid_t)pthread;
     return VOLC_SUCCESS;
+err_out_label:
+    volc_free(pthread);
+    return VOLC_FAILED;
 }
 
 void volc_thread_destroy(volc_tid_t thread) {
-    if (NULL == thread) {
-        return;
-    }
-    volc_free(thread);
 }
 
 void volc_thread_exit(volc_tid_t thread) {
     (void)thread;
-    vTaskDelete(NULL);
 }
 
 void volc_thread_sleep(uint64_t time) {
@@ -87,20 +66,23 @@ void volc_thread_sleep(uint64_t time) {
 }
 
 void volc_thread_sleep_until(uint64_t time) {
-    uint64_t cur_time = volc_get_time_ms() * VOLC_HUNDREDS_OF_NANOS_IN_A_MILLISECOND;
+    uint64_t cur_time = volc_get_time_ms()*VOLC_HUNDREDS_OF_NANOS_IN_A_MILLISECOND;
     if (time > cur_time) {
         volc_thread_sleep(time - cur_time);
     }
 }
 
 uint32_t volc_thread_join(volc_tid_t thread, void* ret) {
-    (void)thread;
-    (void)ret;
+    if (0 != pthread_join((pthread_t)thread, ret)) {
+        return VOLC_FAILED;
+    }
     return VOLC_SUCCESS;
 }
 
 uint32_t volc_thread_detach(volc_tid_t thread) {
-    (void)thread;
+    if (0 != pthread_detach((pthread_t)thread)) {
+        return VOLC_FAILED;
+    }
     return VOLC_SUCCESS;
 }
 

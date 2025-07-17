@@ -1,6 +1,6 @@
 /*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
+ * Copyright (c) 2024 The VolcEngineRTCLite project authors. All Rights Reserved.
+ * @brief VolcEngineRTCLite Interface Lite
  */
 
 #ifndef __HAL_VOLC_NETWORK_H__
@@ -155,6 +155,11 @@ __byte_rtc_api__ uint32_t volc_get_local_ip(volc_ip_addr_t* ip, uint32_t* dest_i
  */
 __byte_rtc_api__ uint32_t volc_get_ip_with_host_name(const char* host_name, volc_ip_addr_t* p_ip_address);
 
+
+__byte_rtc_api__ int volc_inet_pton (int __af, const char *__restrict __cp,void *__restrict __buf) ;
+
+__byte_rtc_api__ uint16_t volc_htons(uint16_t hostshort);
+__byte_rtc_api__ uint16_t volc_ntohs(uint16_t netshort);
 
 #ifdef __cplusplus
 }

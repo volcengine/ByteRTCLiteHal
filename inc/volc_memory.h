@@ -1,6 +1,6 @@
 /*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
+ * Copyright (c) 2024 The VolcEngineRTCLite project authors. All Rights Reserved.
+ * @brief VolcEngineRTCLite Interface Lite
  */
 
 #ifndef __HAL_VOLC_MEMORY_H__
@@ -35,19 +35,6 @@ extern "C" {
  *         - 失败: NULL
  */
 __byte_rtc_api__ void* volc_malloc(size_t size);
-
-/**
- * @locale zh
- * @type api
- * @list 方法
- * @brief 申请指定对齐方式的内存块
- * @param size 申请内存大小，单位: 字节
- * @param alignment 所需对齐的字节数
- * @return 方法调用结果：<br>
- *         - 成功: 内存首地址 <br>
- *         - 失败: NULL
- */
-__byte_rtc_api__ void* volc_align_alloc(size_t size, size_t alignment);
 
 /**
  * @locale zh

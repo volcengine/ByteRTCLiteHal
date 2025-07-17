@@ -1,16 +1,15 @@
 /*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
+ * Copyright (c) 2024 The VolcEngineRTCLite project authors. All Rights Reserved.
+ * @brief VolcEngineRTCLite Interface Lite
  */
 
 #ifndef __HAL_VOLC_SOCKET_H__
 #define __HAL_VOLC_SOCKET_H__
 
-#include <netinet/in.h>
 #include <stdint.h>
-#include <sys/poll.h>
-#include <sys/socket.h>
-
+#include <stdio.h>
+#include "volc_network.h"
+#include <sys/types.h> 
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,6 +23,38 @@ extern "C" {
 #else
 #define __byte_rtc_api__ __attribute__((visibility("default")))
 #endif
+
+// #ifndef socklen_t
+// #define socklen_t int
+// #endif
+
+typedef enum {
+    VOLC_OP_CONNECT = 0,
+    VOLC_OP_READ    = 1,
+    VOLC_OP_WRITE   = 2,
+    VOLC_OP_TIMER   = 3,
+    VOLC_OP_ASYNC   = 4,
+} volc_ev_op_type_e;
+
+// 定义事件类型
+typedef enum {
+    VOLC_EVLOOP_POLLIN  = 0x0001,
+    VOLC_EVLOOP_POLLOUT = 0x0004,
+    VOLC_EVLOOP_POLLERR = 0x0008,
+    VOLC_EVLOOP_POLLHUP = 0x0010,
+} volc_ev_loop_poll_type_e;
+
+
+typedef enum {
+    VOLC_SOCK_STREAM = 1,	
+    VOLC_SOCK_DGRAM  = 2,		
+} volc_socket_type_e;
+
+struct volc_pollfd {
+    int   fd;         /* file descriptor */
+    short events;     /* requested events */
+    short revents;    /* returned events */
+};
 
 /**
  * @brief 创建一个新的套接字
@@ -46,10 +77,9 @@ int volc_socket(int domain, int type, int protocol);
  * 
  * @param sockfd 要绑定的套接字描述符。
  * @param addr 指向 `struct sockaddr_in` 结构体的指针，包含要绑定的地址信息。
- * @param addrlen `addr` 结构体的长度。
  * @return int 如果绑定成功，返回 0；如果失败，返回 -1。
  */
-int volc_bind(int sockfd, struct sockaddr_in* addr, int addrlen);
+int volc_bind(int sockfd, const volc_ip_addr_t* addr);
 
 /**
  * @brief 标记套接字为被动套接字，用于接受传入的连接请求
@@ -75,7 +105,7 @@ int volc_listen(int sockfd, int backlog);
  * @param addrlen 指向 `int` 类型的指针，用于存储 `addr` 结构体的长度。
  * @return int 如果成功，返回一个新的套接字描述符，用于与客户端进行通信；如果失败，返回 -1。
  */
-int volc_accept(int sockfd, struct sockaddr_in* addr, int* addrlen);
+int volc_accept(int sockfd, volc_ip_addr_t* addr, int* addrlen);
 
 /**
  * @brief 尝试将套接字连接到指定地址
@@ -85,10 +115,9 @@ int volc_accept(int sockfd, struct sockaddr_in* addr, int* addrlen);
  * 
  * @param sockfd 要连接的套接字描述符。
  * @param addr 指向 `struct sockaddr_in` 结构体的指针，包含要连接的远程地址信息。
- * @param addrlen `addr` 结构体的长度。
  * @return int 如果连接成功，返回 0；如果失败，返回 -1。
  */
-int volc_connect(int sockfd, struct sockaddr_in* addr, int addrlen);
+int volc_connect(int sockfd, volc_ip_addr_t* addr);
 
 /**
  * @brief 从指定套接字接收消息
@@ -100,11 +129,11 @@ int volc_connect(int sockfd, struct sockaddr_in* addr, int addrlen);
  * @param sockfd 要接收消息的套接字描述符。
  * @param data 指向用于存储接收到的数据的缓冲区的指针。
  * @param size 缓冲区的最大长度，即最多可以接收的数据字节数。
- * @param addr 指向 `struct sockaddr_in` 结构体的指针，用于存储发送方的地址信息。
+ * @param p_addr 指向 `volc_ip_addr_t` 结构体的指针，用于存储发送方的地址信息。
  * @param p_status 指向 `uint32_t` 类型的指针，用于存储接收状态。
  * @return ssize_t 如果成功，返回接收到的字节数；如果发生错误，返回 -1。
  */
-ssize_t volc_recv_msg(int sockfd, void* data, size_t size, struct sockaddr_in* addr, uint32_t* p_status);
+ssize_t volc_recv_msg(int sockfd, void* data, size_t size, volc_ip_addr_t *p_addr, uint32_t* p_status);
 
 /**
  * @brief 通过指定套接字发送消息
@@ -117,11 +146,10 @@ ssize_t volc_recv_msg(int sockfd, void* data, size_t size, struct sockaddr_in* a
  * @param data 指向要发送的数据的缓冲区的指针。
  * @param size 要发送的数据的字节数。
  * @param addr 指向 `struct sockaddr_in` 结构体的指针，包含目标地址信息。
- * @param addrlen `addr` 结构体的长度。
  * @param p_status 发送状态，可用于设置特定的发送条件或标志。
  * @return ssize_t 如果成功，返回实际发送的字节数；如果发生错误，返回 -1。
  */
-ssize_t volc_send_msg(int sockfd, void* data, size_t size, struct sockaddr_in* addr, int addrlen, uint32_t* p_status);
+ssize_t volc_send_msg(int sockfd, void* data, size_t size, volc_ip_addr_t* addr, uint32_t* p_status);
 
 /**
  * @brief 关闭指定的套接字
@@ -148,11 +176,21 @@ int volc_close(int sockfd);
 int volc_set_nonblocking(int sockfd);
 
 int volc_make_pipe(int sockfds[2]);
-int volc_poll(struct pollfd* sockfds, int nfds, int timeout);
 int volc_write(int sockfd, void* data, size_t size);
 int volc_read(int sockfd, void* data, size_t size);
-int volc_sockopt_set(int sockfd, int level, int optname, const void* optval, int optlen);
-int volc_sockopt_get(int sockfd, int level, int optname, void* optval, int* optlen);
+// int volc_sockopt_set(int sockfd, int level, int optname, const void* optval, int optlen);
+// int volc_sockopt_get(int sockfd, int level, int optname, void* optval, int* optlen);
+
+
+int volc_sockopt_set_buffer_size(int __fd, bool _is_send_buffer,int buffer_size) ;
+ 
+int volc_sockopt_get_buffer_size(int __fd, bool _is_send_buffer) ;
+
+int volc_getaddrinfo(const char* host, uint16_t port, volc_ip_addr_t** addrs, int* count);
+
+int volc_freeaddrinfo(volc_ip_addr_t* addrs);
+
+int volc_poll(struct volc_pollfd *fds, int nfds, int timeout);
 
 #ifdef __cplusplus
 }

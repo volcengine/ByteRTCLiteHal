@@ -1,13 +1,8 @@
-/*
- * Copyright (2025) Beijing Volcano Engine Technology Co., Ltd.
- * SPDX-License-Identifier: MIT
- */
-
 #include "volc_thread.h"
 
 #include <unistd.h>
 #include <pthread.h>
-
+#include <sys/prctl.h>
 #include "volc_errno.h"
 #include "volc_memory.h"
 #include "volc_time.h"
@@ -23,30 +18,18 @@ volc_tid_t volc_thread_get_id(void) {
     return (volc_tid_t)pthread_self();
 }
 
-uint32_t volc_thread_get_name(volc_tid_t thread, char* name, uint32_t len) {
-    if (NULL == name) {
-        return VOLC_FAILED;
-    }
-
-    if (len < VOLC_THREAD_NAME_MAX_LENGTH) {
-        return VOLC_FAILED;
-    }
-
-    if (0 != pthread_getname_np((pthread_t)thread, name, len)) {
-        return VOLC_FAILED;
-    }
-    return VOLC_SUCCESS;
-}
-
 uint32_t volc_thread_set_name(const char* name) {
+    uint32_t ret = 0;
     if (NULL == name) {
         return VOLC_FAILED;
     }
 
-    if (0 != pthread_setname_np(pthread_self(), name)) {
-        return VOLC_FAILED;
-    }
-    return VOLC_SUCCESS;
+#if defined  __GLIBC__ && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 12
+    ret = pthread_setname_np(pthread_self(), name);
+#else
+    ret =  prctl(PR_SET_NAME, (name)); 
+#endif  
+    return (0 == ret) ? VOLC_SUCCESS : VOLC_FAILED;
 }
 
 uint32_t volc_thread_create(volc_tid_t* thread, const volc_thread_param_t* param, void* (*start_routine)(void *), void* args) {
@@ -55,12 +38,6 @@ uint32_t volc_thread_create(volc_tid_t* thread, const volc_thread_param_t* param
     if (NULL == thread || NULL == start_routine) {
         return VOLC_FAILED;
     }
-
-    pthread = (pthread_t *)volc_calloc(1, sizeof(pthread_t));
-    if (NULL == pthread) {
-        return VOLC_FAILED;
-    }
-    *thread = (volc_tid_t)pthread;
     ret = pthread_create(&pthread, NULL, start_routine, args);
     if (0 != ret) {
         goto err_out_label;
@@ -73,10 +50,6 @@ err_out_label:
 }
 
 void volc_thread_destroy(volc_tid_t thread) {
-    if (NULL == thread) {
-        return;
-    }
-    volc_free(thread);
 }
 
 void volc_thread_exit(volc_tid_t thread) {
@@ -99,7 +72,7 @@ void volc_thread_sleep(uint64_t time) {
 }
 
 void volc_thread_sleep_until(uint64_t time) {
-    uint64_t cur_time = volc_get_time();
+    uint64_t cur_time = volc_get_time_ms() * VOLC_HUNDREDS_OF_NANOS_IN_A_MILLISECOND;
     if (time > cur_time) {
         volc_thread_sleep(time - cur_time);
     }
@@ -107,13 +80,6 @@ void volc_thread_sleep_until(uint64_t time) {
 
 uint32_t volc_thread_join(volc_tid_t thread, void* ret) {
     if (0 != pthread_join((pthread_t)thread, ret)) {
-        return VOLC_FAILED;
-    }
-    return VOLC_SUCCESS;
-}
-
-uint32_t volc_thread_cancel(volc_tid_t thread) {
-    if (0 != pthread_cancel((volc_tid_t)thread)) {
         return VOLC_FAILED;
     }
     return VOLC_SUCCESS;
